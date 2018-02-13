@@ -1,0 +1,261 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{b654fdc3-ae32-4402-a2fc-37e6ecaa4593}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\memory">
+      <UniqueIdentifier>{ad9c541e-9bcc-4cba-8ae8-a6f9831a1dc6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\config.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cpp_lang.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cpp_printer.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\csharp_lang.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\csharp_printer.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\define_tree.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\expr_tree.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\go_lang.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\go_printer.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include_tree.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\keyword.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lang.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lex.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\log.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\luavar_lang.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\message_tree.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\parser.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\printer.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\range_tree.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\struct_item_tree.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\struct_tree.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\symtab.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\token.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tree.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\type_tree.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\union_item_tree.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\union_ptr_item_tree.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\union_ptr_tree.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\union_tree.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\unistr.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\var_tree.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory\bitorder.h">
+      <Filter>src\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory\data.h">
+      <Filter>src\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory\hash.h">
+      <Filter>src\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory\list.h">
+      <Filter>src\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory\obstack.h">
+      <Filter>src\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory\page.h">
+      <Filter>src\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory\path.h">
+      <Filter>src\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory\platform.h">
+      <Filter>src\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory\pool.h">
+      <Filter>src\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory\printf.h">
+      <Filter>src\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory\types.h">
+      <Filter>src\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory\utils.h">
+      <Filter>src\memory</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\cpp_lang.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cpp_printer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\csharp_lang.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\csharp_printer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\define_tree.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\expr_tree.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\go_lang.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\go_printer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\include_tree.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lang.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lex.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\log.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\luavar_lang.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\message_tree.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\parser.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\printer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\range_tree.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sscc.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\struct_item_tree.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\struct_tree.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\symtab.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\token.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tree.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\type_tree.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\union_item_tree.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\union_ptr_item_tree.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\union_ptr_tree.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\union_tree.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unistr.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\var_tree.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\memory\bitorder.cpp">
+      <Filter>src\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\memory\obstack.cpp">
+      <Filter>src\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\memory\page.cpp">
+      <Filter>src\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\memory\path.cpp">
+      <Filter>src\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\memory\pool.cpp">
+      <Filter>src\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\memory\printf.cpp">
+      <Filter>src\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\memory\utils.cpp">
+      <Filter>src\memory</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
