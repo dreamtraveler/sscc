@@ -356,7 +356,7 @@ void JsLang::print_message(JsPrinter &printer, std::shared_ptr<MessageTree> tree
 	printer.end();
 	printer.println("");
 
-	printer.function_("%s.prototype.OnBack = function()", tree->name()->text()); {
+	printer.function_("%s.prototype.onBack = function()", tree->name()->text()); {
 		if (tree->rsp()) {
 			printer.if_("this.cb != null"); {
 				printer.s("this.cb(this)");
