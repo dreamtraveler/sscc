@@ -141,6 +141,12 @@
     <ClInclude Include="src\memory\utils.h">
       <Filter>src\memory</Filter>
     </ClInclude>
+    <ClInclude Include="src\js_lang.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\js_printer.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\cpp_lang.cpp">
@@ -256,6 +262,12 @@
     </ClCompile>
     <ClCompile Include="src\memory\utils.cpp">
       <Filter>src\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\js_lang.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\js_printer.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
