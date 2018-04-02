@@ -37,6 +37,7 @@ protected:
 
     const char *type_decl(std::shared_ptr<TypeTree> tree, bool union_item);
     const char *type_decl(std::shared_ptr<StructItemTree> tree, bool union_item);
+	const char *type_default_value(std::shared_ptr<TypeTree> tree);
 
     void print_base_var_serial(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name);
     void print_base_var_unserial(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name);

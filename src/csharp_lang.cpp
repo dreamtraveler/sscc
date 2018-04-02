@@ -9,7 +9,7 @@ void CsharpLang::option(const char *name, std::shared_ptr<Token> value) {
 
 }
 
-const char *CsharpLang::type_decl(std::shared_ptr<TypeTree> tree, bool union_item) {
+const char *CsharpLang::type_decl(std::shared_ptr<TypeTree> tree, bool use_class) {
     switch (tree->type()) {
     case TYPE_INT8:
         return "sbyte";
@@ -35,6 +35,38 @@ const char *CsharpLang::type_decl(std::shared_ptr<TypeTree> tree, bool union_ite
         return "string";
     case TYPE_STRUCT:
         return tree->decl()->name()->text();
+    default:
+        assert(0);
+        return nullptr;
+    }
+}
+
+const char *CsharpLang::type_default_value(std::shared_ptr<TypeTree> tree) {
+    switch (tree->type()) {
+    case TYPE_INT8:
+        return "0";
+    case TYPE_UINT8:
+        return "0";
+    case TYPE_INT16:
+        return "0";
+    case TYPE_UINT16:
+        return "0";
+    case TYPE_INT32:
+        return "0";
+    case TYPE_UINT32:
+        return "0";
+    case TYPE_INT64:
+        return "0";
+    case TYPE_UINT64:
+        return "0";
+    case TYPE_FLOAT:
+        return "0.0f";
+    case TYPE_DOUBLE:
+        return "0.0f";
+    case TYPE_STRING:
+        return "\"\"";
+    case TYPE_STRUCT:
+        return Pool::instance()->printf("new %s()", tree->decl()->name()->text());
     default:
         assert(0);
         return nullptr;
@@ -72,8 +104,25 @@ void CsharpLang::print_define(CsharpPrinter &printer, std::shared_ptr<DefineTree
     }
 }
 
-void CsharpLang::print_var(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, bool union_item) {
-    printer.s("public %s %s", type_decl(tree, union_item), tree->name()->text());
+void CsharpLang::print_var(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, bool use_class) {
+	if (use_class) {
+		const char *rightres;
+		if (tree->array()) {
+			if (tree->type()->type() == TYPE_UINT8 || tree->type()->type() == TYPE_INT8) {
+				rightres = "null";
+			}
+			else {
+				rightres = Pool::instance()->printf("new %s()", type_decl(tree, false));
+			}
+		}
+		else {
+			rightres = Pool::instance()->printf("%s", type_default_value(tree->type()));
+		}
+		printer.s("public %s %s = %s", type_decl(tree, use_class), tree->name()->text(), rightres);
+	}
+	else {
+		printer.s("public %s %s", type_decl(tree, use_class), tree->name()->text());
+	}
 }
 
 void CsharpLang::print_base_var_serial(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name) {
@@ -504,11 +553,20 @@ void CsharpLang::print_dump(CsharpPrinter &printer, std::shared_ptr<StructTree> 
 
 void CsharpLang::print_struct(CsharpPrinter &printer, std::shared_ptr<StructTree> tree) {
     const char *inherited = tree->inherited() ? tree->inherited()->name()->text() : nullptr;
-    printer.struct_(tree->name()->text(), inherited); {
+
+	bool useClass = false;
+	if (tree->message || tree->size() > 4) {
+		useClass = true;
+		printer.class_(tree->name()->text(), inherited);
+	} 
+	else {
+		printer.struct_(tree->name()->text(), inherited);
+	}
+	{
         for (auto sym : *tree) {
             switch (sym->type()) {
             case TREE_STRUCT_ITEM:
-                print_var(printer, std::dynamic_pointer_cast<StructItemTree>(sym), false);
+                print_var(printer, std::dynamic_pointer_cast<StructItemTree>(sym), useClass);
                 break;
             default:
                 assert(0);
@@ -550,9 +608,9 @@ void CsharpLang::print_message(CsharpPrinter &printer, std::shared_ptr<MessageTr
     }
 
     printer.class_(tree->name()->text(), "Servlet"); {
-		printer.s("public %s req", tree->req()->name()->text());
+		printer.s("public %s req = new %s()", tree->req()->name()->text(), tree->req()->name()->text());
 		if (tree->rsp()) {
-			printer.s("public %s rsp", tree->rsp()->name()->text());
+			printer.s("public %s rsp = new %s()", tree->rsp()->name()->text(), tree->rsp()->name()->text());
 			printer.s("private Action<%s> cb", tree->name()->text());
 		}
 
@@ -586,6 +644,12 @@ void CsharpLang::print_message(CsharpPrinter &printer, std::shared_ptr<MessageTr
 				printer.s("return rsp");
 			}
 			printer.end();
+
+			printer.function_("public int Response(Conn conn)"); {
+				printer.s("conn.Send(rsp, seq)");
+				printer.s("return 0");
+			}
+			printer.end();
 		} else {
 			printer.function_("public override ISerial Rsp()"); {
 				printer.s("return null");
@@ -604,6 +668,11 @@ void CsharpLang::print_message(CsharpPrinter &printer, std::shared_ptr<MessageTr
 			if (tree->rsp()) {
 				printer.s("rsp.Unserial(buf)");
 			}
+		}
+		printer.end();
+
+		printer.function_("public override int Execute(Conn conn)"); {
+			printer.s("return 0");
 		}
 		printer.end();
 

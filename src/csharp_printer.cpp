@@ -122,7 +122,7 @@ void CsharpPrinter::struct_(const char *name, const char *inherited) {
 
 void CsharpPrinter::class_(const char *name, const char *inherited) {
 	if (inherited) {
-		println("public abstract class %s : %s {", name, inherited);
+		println("public class %s : %s {", name, inherited);
 	}
 	else {
 		println("public class %s {", name);
