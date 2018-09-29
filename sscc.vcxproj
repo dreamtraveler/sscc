@@ -148,6 +148,7 @@
     <ClInclude Include="src\lex.h" />
     <ClInclude Include="src\log.h" />
     <ClInclude Include="src\luavar_lang.h" />
+    <ClInclude Include="src\luavar_printer.h" />
     <ClInclude Include="src\memory\bitorder.h" />
     <ClInclude Include="src\memory\data.h" />
     <ClInclude Include="src\memory\hash.h" />
@@ -194,6 +195,7 @@
     <ClCompile Include="src\lex.cpp" />
     <ClCompile Include="src\log.cpp" />
     <ClCompile Include="src\luavar_lang.cpp" />
+    <ClCompile Include="src\luavar_printer.cpp" />
     <ClCompile Include="src\memory\bitorder.cpp" />
     <ClCompile Include="src\memory\obstack.cpp" />
     <ClCompile Include="src\memory\page.cpp" />

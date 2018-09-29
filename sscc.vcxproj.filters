@@ -147,6 +147,9 @@
     <ClInclude Include="src\js_printer.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\luavar_printer.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\cpp_lang.cpp">
@@ -267,6 +270,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\js_printer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\luavar_printer.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

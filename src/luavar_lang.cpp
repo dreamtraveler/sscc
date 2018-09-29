@@ -19,10 +19,10 @@ void LuaVarLang::print(SymbolTable &symbols, FILE *file) {
 		std::shared_ptr<DefineTree> tree = std::dynamic_pointer_cast<DefineTree>(sym);
         switch (tree->value()->exprType()) {
         case EXPR_INT:
-            printer.println("%s = %lli;", tree->name()->text(), tree->value()->vint());
+            printer.println("_G.%s = %lli;", tree->name()->text(), tree->value()->vint());
             break;
         case EXPR_STRING:
-            printer.println("%s = \"%s\";", tree->name()->text(), tree->value()->vstr());
+            printer.println("_G.%s = \"%s\";", tree->name()->text(), tree->value()->vstr());
             break;
         default:
             assert(0);

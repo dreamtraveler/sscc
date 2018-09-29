@@ -1,0 +1,14 @@
+*.exe
+*.dll
+*.lib
+*.out
+*.suo
+*.pdb
+*.idb
+.svn
+.DS_Store
+obj
+build
+Debug
+Release
+.vs
