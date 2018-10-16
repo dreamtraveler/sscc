@@ -1,5 +1,6 @@
 #include "cpp_lang.h"
 #include <inttypes.h>
+#include <algorithm>
 #include "pool.h"
 
 CppLang::CppLang() : Language("cpp") {
@@ -75,37 +76,37 @@ void CppLang::print_base_var_serial(CppPrinter &printer, std::shared_ptr<StructI
     const char *method;
     switch (tree->type()->type()) {
     case TYPE_INT8:
-        method = "buf->AppendInt8";
+        method = "buf->append_int8";
         break;
     case TYPE_UINT8:
-        method = "buf->AppendUint8";
+        method = "buf->append_uint8";
         break;
     case TYPE_INT16:
-        method = "buf->AppendInt16";
+        method = "buf->append_int16";
         break;
     case TYPE_UINT16:
-        method = "buf->AppendUint16";
+        method = "buf->append_uint16";
         break;
     case TYPE_INT32:
-        method = "buf->AppendInt32";
+        method = "buf->append_int32";
         break;
     case TYPE_UINT32:
-        method = "buf->AppendUint32";
+        method = "buf->append_uint32";
         break;
     case TYPE_INT64:
-        method = "buf->AppendInt64";
+        method = "buf->append_int64";
         break;
     case TYPE_UINT64:
-        method = "buf->AppendUint64";
+        method = "buf->append_uint64";
         break;
     case TYPE_FLOAT:
-        method = "buf->AppendFloat";
+        method = "buf->append_float";
         break;
     case TYPE_DOUBLE:
-        method = "buf->AppendDouble";
+        method = "buf->append_double";
         break;
     case TYPE_STRING:
-        method = "buf->AppendString";
+        method = "buf->append_string";
         break;
     default:
         assert(0);
@@ -119,37 +120,37 @@ void CppLang::print_base_var_unserial(CppPrinter &printer, std::shared_ptr<Struc
     const char *method;
     switch (tree->type()->type()) {
     case TYPE_INT8:
-        method = "buf->ReadInt8";
+        method = "buf->read_int8";
         break;
     case TYPE_UINT8:
-        method = "buf->ReadUint8";
+        method = "buf->read_uint8";
         break;
     case TYPE_INT16:
-        method = "buf->ReadInt16";
+        method = "buf->read_int16";
         break;
     case TYPE_UINT16:
-        method = "buf->ReadUint16";
+        method = "buf->read_uint16";
         break;
     case TYPE_INT32:
-        method = "buf->ReadInt32";
+        method = "buf->read_int32";
         break;
     case TYPE_UINT32:
-        method = "buf->ReadUint32";
+        method = "buf->read_uint32";
         break;
     case TYPE_INT64:
-        method = "buf->ReadInt64";
+        method = "buf->read_int64";
         break;
     case TYPE_UINT64:
-        method = "buf->ReadUint64";
+        method = "buf->read_uint64";
         break;
     case TYPE_FLOAT:
-        method = "buf->ReadFloat";
+        method = "buf->read_float";
         break;
     case TYPE_DOUBLE:
-        method = "buf->ReadDouble";
+        method = "buf->read_double";
         break;
     case TYPE_STRING:
-        method = "buf->ReadString";
+        method = "buf->read_string";
         break;
     default:
         assert(0);
@@ -233,7 +234,7 @@ void CppLang::print_struct_dump(CppPrinter &printer, std::shared_ptr<StructItemT
 }
 
 void CppLang::print_array_serial(CppPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name) {
-    printer.s("buf->AppendUint32(%s.size())", name);
+    printer.s("buf->append_uint32(%s.size())", name);
 
     printer.for_("auto &sscc_i : %s", name); {
         if (tree->type()->type() == TYPE_STRUCT) {
@@ -248,7 +249,7 @@ void CppLang::print_array_serial(CppPrinter &printer, std::shared_ptr<StructItem
 
 void CppLang::print_array_unserial(CppPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name) {
     printer.do_(); {
-        printer.s("uint32_t sscc_size = buf->ReadUint32()");
+        printer.s("uint32_t sscc_size = buf->read_uint32()");
         printer.for_("size_t sscc_i = 0 ; sscc_i < sscc_size; ++sscc_i"); {
             printer.s("%s.emplace_back()", name);
             if (tree->type()->type() == TYPE_STRUCT) {
@@ -349,7 +350,7 @@ void CppLang::print_var_dump(CppPrinter &printer, std::shared_ptr<StructItemTree
 }
 
 void CppLang::print_serial(CppPrinter &printer, std::shared_ptr<StructTree> tree) {
-    printer.function_("void serial(evpp::Buffer* buf) const override"); {
+    printer.function_("void serial(Buffer* buf) const override"); {
         if (tree->inherited()) {
             //printer.s("%s::serial(buf)", tree->inherited()->name()->text());
         }
@@ -368,7 +369,7 @@ void CppLang::print_serial(CppPrinter &printer, std::shared_ptr<StructTree> tree
 };
 
 void CppLang::print_unserial(CppPrinter &printer, std::shared_ptr<StructTree> tree) {
-    printer.function_("void unserial(evpp::Buffer* buf) override"); {
+    printer.function_("void unserial(Buffer* buf) override"); {
         if (tree->inherited()) {
             //printer.s("%s::unserial(buf)", tree->inherited()->name()->text());
         }
@@ -511,6 +512,7 @@ void CppLang::print_struct(CppPrinter &printer, std::shared_ptr<StructTree> tree
 }
 
 void CppLang::print_message(CppPrinter &printer, std::shared_ptr<MessageTree> tree) {
+
     printer.s("struct %s", tree->name()->text());
 
     print_struct(printer, tree->req());
@@ -518,78 +520,54 @@ void CppLang::print_message(CppPrinter &printer, std::shared_ptr<MessageTree> tr
         print_struct(printer, tree->rsp());
     }
 
-    printer.struct_(tree->name()->text(), "Servlet"); {
+    printer.struct_(tree->name()->text(), "IRpcMessage"); {
+		printer.s("typedef %s request_type", tree->req()->name()->text());
+		if (tree->rsp()) {
+			printer.s("typedef %s response_type", tree->rsp()->name()->text());
+		}
+		printer.s("static constexpr int the_message_id = %s", tree->id()->name()->text());
+		printer.s("static constexpr const char *the_message_name = \"%s\"", tree->id()->name()->text());
+		printer.println("");
+
 		printer.s("%s req", tree->req()->name()->text());
 		if (tree->rsp()) {
 			printer.s("%s rsp", tree->rsp()->name()->text());
 		}
 		if (tree->rsp()) {
-			printer.s("%s(bool b) : Servlet(b), req(), rsp() {}", tree->name()->text());
+			printer.s("%s() : req(), rsp() {}", tree->name()->text());
 		}
 		else {
-			printer.s("%s(bool b) : Servlet(b), req() {}", tree->name()->text());
+			printer.s("%s() : req() {}", tree->name()->text());
 		}
+		
+		//void serial_request(Buffer* buf) const override {
+		//	req.serial(buf);
+		//}
 
-		printer.function_("uint16_t msgid() const override"); {
-			printer.s("return %s", tree->id()->name()->text());
-		}
-		printer.end();
+		//void set_response(Buffer* buf) override {
+		//	rsp.unserial(buf);
+		//}
 
-		printer.function_("std::string msgname() const override"); {
-			printer.s("return \"%s\"", tree->id()->name()->text());
-		}
-		printer.end();
+		//ISerial* get_request() override {
+		//	return &req;
+		//}
 
-		printer.function_("%s* get_request() override", tree->req()->name()->text()); {
-			printer.s("return &req");
-		}
-		printer.end();
-
-		printer.function_("void serial_request(evpp::Buffer* buf) override"); {
+		printer.function_("void serial_request(Buffer* buf) const override"); {
 			printer.s("req.serial(buf)");
 		}
 		printer.end();
 
-		printer.function_("void unserial_request(evpp::Buffer* buf) override"); {
-			printer.s("req.unserial(buf)");
-		}
-		printer.end();
-
-		if (tree->rsp()){
-			printer.function_("%s* get_response() override", tree->rsp()->name()->text()); {
-				printer.s("return &rsp");
-			}
-			printer.end();
-		} else {
-			printer.function_("%s* get_response() override", tree->req()->inherited()->name()->text()); {
-				printer.s("return nullptr");
-			}
-			printer.end();
-		}
-
-		printer.function_("void serial_response(evpp::Buffer* buf) override"); {
-			if (tree->rsp())
-				printer.s("rsp.serial(buf)");
-		}
-		printer.end();
-
-		printer.function_("void unserial_response(evpp::Buffer* buf) override"); {
-			if (tree->rsp())
+		printer.function_("void set_response(Buffer* buf) override"); {
+			if (tree->rsp()) {
 				printer.s("rsp.unserial(buf)");
+			}
 		}
 		printer.end();
 
-		printer.function_("std::shared_ptr<Servlet> clone() override"); {
-			printer.s("return std::make_shared<%s>(need_rpc)", tree->name()->text());
+		printer.function_("ISerial* get_request() override"); {
+			printer.s("return &req");
 		}
 		printer.end();
-
-		if (tree->rsp()){
-			printer.s("int execute() override");
-		}
-		else {
-			printer.s("int execute() {return 0;}");
-		}
     }
     printer.end();
 }
@@ -601,8 +579,8 @@ void CppLang::print_include(CppPrinter &printer, std::shared_ptr<IncludeTree> tr
 void CppLang::print(SymbolTable &symbols, FILE *file) {
     CppPrinter printer;
     printer.open(file);
+	include_once_begin(printer, this->filename);
 
-    printer.println("#pragma once");
     printer.p(head().str().c_str());
     for (auto sym : symbols) {
         switch (sym->type()) {
@@ -624,4 +602,18 @@ void CppLang::print(SymbolTable &symbols, FILE *file) {
         }
     }
     printer.p(tail().str().c_str());
+	include_once_end(printer);
 } 
+
+void CppLang::include_once_begin(CppPrinter &printer, std::string& filename) {
+	std::string tmp = filename;
+	transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
+	char h[256];
+	sprintf_s(h, "__CPP_%s_h__", tmp.c_str());
+	printer.println("#ifndef %s", h);
+	printer.println("#define %s", h);
+}
+
+void CppLang::include_once_end(CppPrinter &printer) {
+	printer.println("#endif");
+}

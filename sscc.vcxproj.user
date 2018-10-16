@@ -5,7 +5,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommandArguments>-i G_Defines.sdl -o msg.lua -l luavar</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-i AC_Login.sdl  -o AC_Login.cpp -l cpp</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

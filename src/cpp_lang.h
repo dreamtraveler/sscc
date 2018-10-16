@@ -55,6 +55,8 @@ protected:
     void print_var_dump(CppPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *prefix, bool is_pointer);
 
     void print_constructor(CppPrinter &printer, std::shared_ptr<StructTree> tree);
+	void include_once_begin(CppPrinter &printer, std::string& filename);
+	void include_once_end(CppPrinter &printer);
 protected:
     const char *_serial_name;
     const char *_unserial_name;
