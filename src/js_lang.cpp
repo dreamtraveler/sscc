@@ -341,7 +341,7 @@ void JsLang::print_message(JsPrinter &printer, std::shared_ptr<MessageTree> tree
         print_struct(printer, tree->rsp());
     }
 
-	printer.struct_(tree->name()->text(), false); {
+	printer.struct_(tree->name()->text(), nullptr); {
 		printer.s("this.req = new %s()", tree->req()->name()->text());
 		if (tree->rsp()) {
 			printer.s("this.rsp = new %s()", tree->rsp()->name()->text());

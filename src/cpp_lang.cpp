@@ -609,7 +609,11 @@ void CppLang::include_once_begin(CppPrinter &printer, std::string& filename) {
 	std::string tmp = filename;
 	transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
 	char h[256];
+#if defined(WIN32) || defined(_WIN32)
 	sprintf_s(h, "__CPP_%s_h__", tmp.c_str());
+#else
+	sprintf(h, "__CPP_%s_h__", tmp.c_str());
+#endif
 	printer.println("#ifndef %s", h);
 	printer.println("#define %s", h);
 }
