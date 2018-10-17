@@ -32,7 +32,11 @@ public:
     }
 	void set_filename(const char* str) {
 		std::string filestr(str);
+#if defined(WIN32) || defined(_WIN32)
 		int pos_begin = filestr.find_last_of('\\') + 1;
+#else
+		int pos_begin = filestr.find_last_of('/') + 1;
+#endif
 		int sz = filestr.size() - 4 - pos_begin;
 		filename = filestr.substr(pos_begin, sz);
 	}
