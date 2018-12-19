@@ -555,7 +555,7 @@ void CsharpLang::print_struct(CsharpPrinter &printer, std::shared_ptr<StructTree
     const char *inherited = tree->inherited() ? tree->inherited()->name()->text() : nullptr;
 
 	bool useClass = false;
-	if (tree->message || tree->size() > 4) {
+	if (tree->message || tree->size() > 2) {
 		useClass = true;
 		printer.class_(tree->name()->text(), inherited);
 	} 
