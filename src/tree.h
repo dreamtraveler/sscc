@@ -10,8 +10,9 @@ enum {
     TREE_DEFINE,
     TREE_EXPR,
     TREE_STRUCT,
-    TREE_CLASS,
 	TREE_STRUCT_ITEM,
+    TREE_CLASS,
+    TREE_CLASS_ITEM,
 	TREE_TYPE,
     TREE_VAR,
 	TREE_UNION,
@@ -31,6 +32,9 @@ public:
     int type() const {
         return _type;
     }
+	void resetType(int v) {
+		_type = v;
+	}
     Location loc;
 private:
     int _type;

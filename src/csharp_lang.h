@@ -23,7 +23,7 @@ public:
 
 protected:
     void print_define(CsharpPrinter &printer, std::shared_ptr<DefineTree> tree);
-    void print_struct(CsharpPrinter &printer, std::shared_ptr<StructTree> tree);
+    void print_struct(CsharpPrinter &printer, std::shared_ptr<StructTree> tree, bool useClass = false);
     void print_message(CsharpPrinter &printer, std::shared_ptr<MessageTree> tree);
     void print_include(CsharpPrinter &printer, std::shared_ptr<IncludeTree> tree);
 
@@ -33,10 +33,10 @@ protected:
 
     void print_indent(CsharpPrinter &printer);
 
-    void print_var(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, bool union_item);
+    void print_var(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, bool use_class);
 
-    const char *type_decl(std::shared_ptr<TypeTree> tree, bool union_item);
-    const char *type_decl(std::shared_ptr<StructItemTree> tree, bool union_item);
+    const char *type_decl(std::shared_ptr<TypeTree> tree);
+    const char *type_decl(std::shared_ptr<StructItemTree> tree);
 	const char *type_default_value(std::shared_ptr<TypeTree> tree);
 
     void print_base_var_serial(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name);

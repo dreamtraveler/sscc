@@ -9,7 +9,7 @@ void CsharpLang::option(const char *name, std::shared_ptr<Token> value) {
 
 }
 
-const char *CsharpLang::type_decl(std::shared_ptr<TypeTree> tree, bool use_class) {
+const char *CsharpLang::type_decl(std::shared_ptr<TypeTree> tree) {
     switch (tree->type()) {
     case TYPE_INT8:
         return "sbyte";
@@ -73,10 +73,10 @@ const char *CsharpLang::type_default_value(std::shared_ptr<TypeTree> tree) {
     }
 }
 
-const char *CsharpLang::type_decl(std::shared_ptr<StructItemTree> tree, bool union_item) {
+const char *CsharpLang::type_decl(std::shared_ptr<StructItemTree> tree) {
     const char *type;
     if (tree->array()) {
-        type = type_decl(tree->type(), false);
+        type = type_decl(tree->type());
 		if (tree->type()->type() == TYPE_UINT8 || tree->type()->type() == TYPE_INT8) {
 			type = Pool::instance()->printf("%s[]", type);
 		}
@@ -85,7 +85,7 @@ const char *CsharpLang::type_decl(std::shared_ptr<StructItemTree> tree, bool uni
 		}
     }
     else {
-        type = type_decl(tree->type(), union_item);
+        type = type_decl(tree->type());
     }
     return type;
 }
@@ -112,16 +112,16 @@ void CsharpLang::print_var(CsharpPrinter &printer, std::shared_ptr<StructItemTre
 				rightres = "null";
 			}
 			else {
-				rightres = Pool::instance()->printf("new %s()", type_decl(tree, false));
+				rightres = Pool::instance()->printf("new %s()", type_decl(tree));
 			}
 		}
 		else {
 			rightres = Pool::instance()->printf("%s", type_default_value(tree->type()));
 		}
-		printer.s("public %s %s = %s", type_decl(tree, use_class), tree->name()->text(), rightres);
+		printer.s("public %s %s = %s", type_decl(tree), tree->name()->text(), rightres);
 	}
 	else {
-		printer.s("public %s %s", type_decl(tree, use_class), tree->name()->text());
+		printer.s("public %s %s", type_decl(tree), tree->name()->text());
 	}
 }
 
@@ -298,7 +298,7 @@ void CsharpLang::print_array_serial(CsharpPrinter &printer, std::shared_ptr<Stru
 		tname = tree->type()->decl()->name()->text();
 	}
 	else {
-        tname = type_decl(tree->type(), false);
+        tname = type_decl(tree->type());
 	}
     printer.foreach_("%s sscc_i in %s", tname, name); {
         if (tree->type()->type() == TYPE_STRUCT) {
@@ -322,7 +322,7 @@ void CsharpLang::print_array_unserial(CsharpPrinter &printer, std::shared_ptr<St
 		tname = tree->type()->decl()->name()->text();
 	}
 	else {
-        tname = type_decl(tree->type(), false);
+        tname = type_decl(tree->type());
 	}
     printer.do_(); {
 		printer.s("%s = new List<%s>()", name, tname);
@@ -489,7 +489,7 @@ void CsharpLang::print_constructor(CsharpPrinter &printer, std::shared_ptr<Struc
             }
 
             if (item->array()) {
-                printer.print("  %s()", item->name()->text(), type_decl(item, false));
+                printer.print("  %s()", item->name()->text(), type_decl(item));
                 break;
             }
             if (item->type()->type() == TYPE_STRUCT) {
@@ -497,7 +497,7 @@ void CsharpLang::print_constructor(CsharpPrinter &printer, std::shared_ptr<Struc
                 break;
             }
             if (item->type()->type() == TYPE_STRING) {
-                printer.print("  %s()", item->name()->text(), type_decl(item, false));
+                printer.print("  %s()", item->name()->text(), type_decl(item));
                 break;
             }
             printer.print("  %s()", item->name()->text());
@@ -551,11 +551,10 @@ void CsharpLang::print_dump(CsharpPrinter &printer, std::shared_ptr<StructTree> 
     printer.p("#endif");
 }
 
-void CsharpLang::print_struct(CsharpPrinter &printer, std::shared_ptr<StructTree> tree) {
+void CsharpLang::print_struct(CsharpPrinter &printer, std::shared_ptr<StructTree> tree, bool useClass) {
     const char *inherited = tree->inherited() ? tree->inherited()->name()->text() : nullptr;
 
-	bool useClass = false;
-	if (tree->message || tree->size() > 2) {
+	if (useClass || tree->message || tree->size() > 2) {
 		useClass = true;
 		printer.class_(tree->name()->text(), inherited);
 	} 
@@ -566,6 +565,9 @@ void CsharpLang::print_struct(CsharpPrinter &printer, std::shared_ptr<StructTree
         for (auto sym : *tree) {
             switch (sym->type()) {
             case TREE_STRUCT_ITEM:
+                print_var(printer, std::dynamic_pointer_cast<StructItemTree>(sym), useClass);
+                break;
+            case TREE_CLASS_ITEM:
                 print_var(printer, std::dynamic_pointer_cast<StructItemTree>(sym), useClass);
                 break;
             default:
@@ -722,6 +724,9 @@ void CsharpLang::print(SymbolTable &symbols, FILE *file) {
             break;
         case TREE_STRUCT:
             print_struct(printer, std::dynamic_pointer_cast<StructTree>(sym));
+            break;
+        case TREE_CLASS:
+            print_struct(printer, std::dynamic_pointer_cast<StructTree>(sym), true);
             break;
         case TREE_MESSAGE:
             print_message(printer, std::dynamic_pointer_cast<MessageTree>(sym));

@@ -281,6 +281,16 @@ void Parser::parse_body(std::shared_ptr<Token> token) {
             }
             return;
         } while (0);
+    case TOKEN_CLASS:
+        do {
+			auto tree = std::make_shared<StructTree>();
+			tree->resetType(TREE_CLASS);
+            tree->parse(this);
+            if (tree != _symbols.probe(tree->name()->text(), tree, _input.is_root())) {
+                log_error(tree->name()->loc(), "dup struct name '%s'", tree->name()->text());
+            }
+            return;
+        } while (0);
     case TOKEN_MESSAGE:
         do {
 			auto tree = std::make_shared<MessageTree>();

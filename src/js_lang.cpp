@@ -384,6 +384,7 @@ void JsLang::print(SymbolTable &symbols, FILE *file) {
             print_define(printer, std::dynamic_pointer_cast<DefineTree>(sym));
             break;
         case TREE_STRUCT:
+        case TREE_CLASS:
             print_struct(printer, std::dynamic_pointer_cast<StructTree>(sym));
             break;
         case TREE_MESSAGE:

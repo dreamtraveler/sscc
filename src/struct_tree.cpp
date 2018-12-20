@@ -64,6 +64,17 @@ void StructTree::parseItems(Parser *parser) {
             parser->eat();
             parseUnionPtr(parser);
             break;
+        case TOKEN_CLASS:
+            do {
+				auto item = std::make_shared<StructItemTree>();
+				item->resetType(TREE_CLASS_ITEM);
+                item->parse(parser);
+                if (getItem(item->name()->text(), true)) {
+                    log_error(item->name()->loc(), "dup item name '%s'", item->name()->text());
+                }
+                _symbols.push_back(item);
+            } while (0);
+            break;
         default:
             do {
 				auto item = std::make_shared<StructItemTree>();
@@ -111,6 +122,11 @@ std::shared_ptr<Tree> StructTree::getItem(const char *name, bool find_union) {
     for (auto sym : _symbols) {
         switch (sym->type()) {
         case TREE_STRUCT_ITEM:
+            if (std::dynamic_pointer_cast<StructItemTree>(sym)->name()->text() == name) {
+                return sym;
+            }
+            break;
+        case TREE_CLASS_ITEM:
             if (std::dynamic_pointer_cast<StructItemTree>(sym)->name()->text() == name) {
                 return sym;
             }
