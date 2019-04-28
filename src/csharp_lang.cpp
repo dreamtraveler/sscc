@@ -652,6 +652,11 @@ void CsharpLang::print_message(CsharpPrinter &printer, std::shared_ptr<MessageTr
 				printer.s("return 0");
 			}
 			printer.end();
+
+			printer.function_("public override void RC(byte rc)"); {
+				printer.s("rsp.rc = rc");
+			}
+			printer.end();
 		} else {
 			printer.function_("public override ISerial Rsp()"); {
 				printer.s("return null");
