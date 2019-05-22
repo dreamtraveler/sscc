@@ -579,7 +579,7 @@ void CppLang::print_include(CppPrinter &printer, std::shared_ptr<IncludeTree> tr
 void CppLang::print(SymbolTable &symbols, FILE *file) {
     CppPrinter printer;
     printer.open(file);
-	include_once_begin(printer, this->filename);
+	include_once_begin(printer, this->filename());
 
     printer.p(head().str().c_str());
     for (auto sym : symbols) {

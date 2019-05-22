@@ -58,6 +58,8 @@ protected:
 protected:
     const char *_serial_name;
     const char *_unserial_name;
+private:
+	bool rshift = false;
 };
 
 #endif

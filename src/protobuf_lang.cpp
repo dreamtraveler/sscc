@@ -1,32 +1,32 @@
-#include "csharp_lang.h"
+#include "protobuf_lang.h"
 #include <inttypes.h>
 #include "pool.h"
 
-CsharpLang::CsharpLang() : Language("csharp") {
+ProtobufLang::ProtobufLang() : Language("pb") {
 }
 
-void CsharpLang::option(const char *name, std::shared_ptr<Token> value) {
+void ProtobufLang::option(const char *name, std::shared_ptr<Token> value) {
 
 }
 
-const char *CsharpLang::type_decl(std::shared_ptr<TypeTree> tree) {
+const char *ProtobufLang::type_decl(std::shared_ptr<TypeTree> tree) {
     switch (tree->type()) {
     case TYPE_INT8:
-        return "sbyte";
+        return "int32";
     case TYPE_UINT8:
-        return "byte";
+        return "uint32";
     case TYPE_INT16:
-        return "short";
+        return "int32";
     case TYPE_UINT16:
-        return "ushort";
+        return "uint32";
     case TYPE_INT32:
-        return "int";
+        return "int32";
     case TYPE_UINT32:
-        return "uint";
+        return "uint32";
     case TYPE_INT64:
-        return "long";
+        return "int64";
     case TYPE_UINT64:
-        return "ulong";
+        return "uint64";
     case TYPE_FLOAT:
         return "float";
     case TYPE_DOUBLE:
@@ -41,7 +41,7 @@ const char *CsharpLang::type_decl(std::shared_ptr<TypeTree> tree) {
     }
 }
 
-const char *CsharpLang::type_default_value(std::shared_ptr<TypeTree> tree) {
+const char *ProtobufLang::type_default_value(std::shared_ptr<TypeTree> tree) {
     switch (tree->type()) {
     case TYPE_INT8:
         return "0";
@@ -73,15 +73,15 @@ const char *CsharpLang::type_default_value(std::shared_ptr<TypeTree> tree) {
     }
 }
 
-const char *CsharpLang::type_decl(std::shared_ptr<StructItemTree> tree) {
+const char *ProtobufLang::type_decl(std::shared_ptr<StructItemTree> tree) {
     const char *type;
     if (tree->array()) {
         type = type_decl(tree->type());
 		if (tree->type()->type() == TYPE_UINT8 || tree->type()->type() == TYPE_INT8) {
-			type = Pool::instance()->printf("%s[]", type);
+			type = Pool::instance()->printf("bytes");
 		}
 		else {
-			type = Pool::instance()->printf("List<%s>", type);
+			type = Pool::instance()->printf("repeated %s", type);
 		}
     }
     else {
@@ -90,7 +90,7 @@ const char *CsharpLang::type_decl(std::shared_ptr<StructItemTree> tree) {
     return type;
 }
 
-void CsharpLang::print_define(CsharpPrinter &printer, std::shared_ptr<DefineTree> tree) {
+void ProtobufLang::print_define(ProtobufPrinter &printer, std::shared_ptr<DefineTree> tree) {
     switch (tree->value()->exprType()) {
     case EXPR_INT:
         printer.d(tree->name()->text(), "0x%llx", tree->value()->vint());
@@ -104,28 +104,20 @@ void CsharpLang::print_define(CsharpPrinter &printer, std::shared_ptr<DefineTree
     }
 }
 
-void CsharpLang::print_var(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, bool use_class) {
-	if (use_class) {
-		const char *rightres;
-		if (tree->array()) {
-			if (tree->type()->type() == TYPE_UINT8 || tree->type()->type() == TYPE_INT8) {
-				rightres = "null";
-			}
-			else {
-				rightres = Pool::instance()->printf("new %s()", type_decl(tree));
-			}
-		}
-		else {
-			rightres = Pool::instance()->printf("%s", type_default_value(tree->type()));
-		}
-		printer.s("public %s %s = %s", type_decl(tree), tree->name()->text(), rightres);
+void ProtobufLang::print_var(ProtobufPrinter &printer, std::shared_ptr<StructItemTree> tree, int idx) {
+	auto dv = tree->defaultValue();
+	if (dv == nullptr) {
+		log_info("[warning] no tag number.");
+		printer.s("%s %s = %d", type_decl(tree), tree->name()->text(), idx);
+		return;
 	}
 	else {
-		printer.s("public %s %s", type_decl(tree), tree->name()->text());
+		int v = (int)dv->vint();
+		printer.s("%s %s = %d", type_decl(tree), tree->name()->text(), v);
 	}
 }
 
-void CsharpLang::print_base_var_serial(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name) {
+void ProtobufLang::print_base_var_serial(ProtobufPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name) {
     const char *method;
     switch (tree->type()->type()) {
     case TYPE_INT8:
@@ -169,7 +161,7 @@ void CsharpLang::print_base_var_serial(CsharpPrinter &printer, std::shared_ptr<S
     printer.s("%s(%s)", method, name);
 }
 
-void CsharpLang::print_base_var_unserial(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name) {
+void ProtobufLang::print_base_var_unserial(ProtobufPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name) {
     const char *method;
     switch (tree->type()->type()) {
     case TYPE_INT8:
@@ -213,7 +205,7 @@ void CsharpLang::print_base_var_unserial(CsharpPrinter &printer, std::shared_ptr
     printer.s("%s = %s()", name, method);
 }
 
-void CsharpLang::print_base_var_dump(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name) {
+void ProtobufLang::print_base_var_dump(ProtobufPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name) {
     switch (tree->type()->type()) {
     case TYPE_INT8:
         printer.s("SSCC_PRINT(\"%%d(0x%%x)\", (int)%s, (unsigned)%s)", name, name);
@@ -254,7 +246,7 @@ void CsharpLang::print_base_var_dump(CsharpPrinter &printer, std::shared_ptr<Str
     }
 }
 
-void CsharpLang::print_struct_serial(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name, bool is_pointer) {
+void ProtobufLang::print_struct_serial(ProtobufPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name, bool is_pointer) {
     if (is_pointer) {
         printer.s("%s.Serial(buf)", name);
     }
@@ -263,7 +255,7 @@ void CsharpLang::print_struct_serial(CsharpPrinter &printer, std::shared_ptr<Str
     }
 }
 
-void CsharpLang::print_struct_unserial(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name, bool is_pointer) {
+void ProtobufLang::print_struct_unserial(ProtobufPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name, bool is_pointer) {
     if (is_pointer) {
         printer.s("s.Unserial(buf)", name);
     }
@@ -272,7 +264,7 @@ void CsharpLang::print_struct_unserial(CsharpPrinter &printer, std::shared_ptr<S
     }
 }
 
-void CsharpLang::print_struct_dump(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name, bool is_pointer) {
+void ProtobufLang::print_struct_dump(ProtobufPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name, bool is_pointer) {
     printer.s("SSCC_PRINT(\"{\\n\")");
     printer.s("++sscc_indent");
     if (is_pointer) {
@@ -286,7 +278,7 @@ void CsharpLang::print_struct_dump(CsharpPrinter &printer, std::shared_ptr<Struc
     printer.s("SSCC_PRINT(\"}\")");
 }
 
-void CsharpLang::print_array_serial(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name) {
+void ProtobufLang::print_array_serial(ProtobufPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name) {
 	if (tree->type()->type() == TYPE_UINT8 || tree->type()->type() == TYPE_INT8) {
 		printer.s("buf.WriteBytes(%s)", name);
 		return;
@@ -311,7 +303,7 @@ void CsharpLang::print_array_serial(CsharpPrinter &printer, std::shared_ptr<Stru
     printer.end();
 }
 
-void CsharpLang::print_array_unserial(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name) {
+void ProtobufLang::print_array_unserial(ProtobufPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name) {
 	if (tree->type()->type() == TYPE_UINT8 || tree->type()->type() == TYPE_INT8) {
 		printer.s("%s = buf.ReadBytes()", name);
 		return;
@@ -343,7 +335,7 @@ void CsharpLang::print_array_unserial(CsharpPrinter &printer, std::shared_ptr<St
     printer.end();
 }
 
-void CsharpLang::print_array_dump(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name) {
+void ProtobufLang::print_array_dump(ProtobufPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *name) {
     printer.s("SSCC_PRINT(\"{\\n\")");
     printer.s("++sscc_indent");
 
@@ -369,7 +361,7 @@ void CsharpLang::print_array_dump(CsharpPrinter &printer, std::shared_ptr<Struct
     printer.s("SSCC_PRINT(\"}\")", name);
 }
 
-void CsharpLang::print_var_serial(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *prefix, bool is_pointer) {
+void ProtobufLang::print_var_serial(ProtobufPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *prefix, bool is_pointer) {
     const char *name;
     if (prefix) {
         name = Pool::instance()->printf("this.%s.%s", prefix, tree->name()->text());
@@ -388,7 +380,7 @@ void CsharpLang::print_var_serial(CsharpPrinter &printer, std::shared_ptr<Struct
     print_base_var_serial(printer, tree, name);
 }
 
-void CsharpLang::print_var_unserial(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *prefix, bool is_pointer) {
+void ProtobufLang::print_var_unserial(ProtobufPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *prefix, bool is_pointer) {
     const char *name;
     if (prefix) {
         name = Pool::instance()->printf("%s.%s", prefix, tree->name()->text());
@@ -407,7 +399,7 @@ void CsharpLang::print_var_unserial(CsharpPrinter &printer, std::shared_ptr<Stru
     print_base_var_unserial(printer, tree, name);
 }
 
-void CsharpLang::print_var_dump(CsharpPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *prefix, bool is_pointer) {
+void ProtobufLang::print_var_dump(ProtobufPrinter &printer, std::shared_ptr<StructItemTree> tree, const char *prefix, bool is_pointer) {
     const char *name = tree->name()->text();
     print_indent(printer);
     printer.s("SSCC_PRINT(\"%s = \")", name);
@@ -428,7 +420,7 @@ void CsharpLang::print_var_dump(CsharpPrinter &printer, std::shared_ptr<StructIt
     }
 }
 
-void CsharpLang::print_serial(CsharpPrinter &printer, std::shared_ptr<StructTree> tree) {
+void ProtobufLang::print_serial(ProtobufPrinter &printer, std::shared_ptr<StructTree> tree) {
     printer.function_("public void Serial(ByteBuffer buf)"); {
         if (tree->inherited()) {
             //printer.s("%s::serial(buf)", tree->inherited()->name()->text());
@@ -447,7 +439,7 @@ void CsharpLang::print_serial(CsharpPrinter &printer, std::shared_ptr<StructTree
     printer.end();
 };
 
-void CsharpLang::print_unserial(CsharpPrinter &printer, std::shared_ptr<StructTree> tree) {
+void ProtobufLang::print_unserial(ProtobufPrinter &printer, std::shared_ptr<StructTree> tree) {
     printer.function_("public void Unserial(ByteBuffer buf)"); {
         if (tree->inherited()) {
             //printer.s("%s::unserial(buf)", tree->inherited()->name()->text());
@@ -466,7 +458,7 @@ void CsharpLang::print_unserial(CsharpPrinter &printer, std::shared_ptr<StructTr
     printer.end();
 };
 
-void CsharpLang::print_constructor(CsharpPrinter &printer, std::shared_ptr<StructTree> tree) {
+void ProtobufLang::print_constructor(ProtobufPrinter &printer, std::shared_ptr<StructTree> tree) {
     bool first = true;
     printer.println("%s()", tree->name()->text());
     if (tree->inherited()) {
@@ -511,11 +503,11 @@ void CsharpLang::print_constructor(CsharpPrinter &printer, std::shared_ptr<Struc
     printer.println("{ }");
 };
 
-void CsharpLang::print_indent(CsharpPrinter &printer) {
+void ProtobufLang::print_indent(ProtobufPrinter &printer) {
     printer.s("SSCC_PRINT_INDENT(sscc_indent)");
 }
 
-void CsharpLang::print_dump(CsharpPrinter &printer, std::shared_ptr<StructTree> tree) {
+void ProtobufLang::print_dump(ProtobufPrinter &printer, std::shared_ptr<StructTree> tree) {
     printer.p("#ifdef SSCC_USE_DUMP");
     printer.function_("void SSCC_DUMP_FUNC(unsigned sscc_indent SSCC_DUMP_PARAM_DECL) override"); {
         if (tree->inherited()) {
@@ -551,146 +543,55 @@ void CsharpLang::print_dump(CsharpPrinter &printer, std::shared_ptr<StructTree> 
     printer.p("#endif");
 }
 
-void CsharpLang::print_struct(CsharpPrinter &printer, std::shared_ptr<StructTree> tree, bool useClass) {
-	if (tree->message) {
-		printer.function_("public partial class %s : ISerial", tree->name()->text()); {
-			printer.function_("public void Serial(ByteBuffer buf) "); {
-				printer.s("var ms = buf.Stream()");
-				printer.s("CodedOutputStream outStream = new CodedOutputStream(ms)");
-				printer.s("WriteTo(outStream)");
-				printer.s("outStream.Flush()");
-			}
-			printer.end();
-			printer.println("");
+void ProtobufLang::print_struct(ProtobufPrinter &printer, std::shared_ptr<StructTree> tree, bool useClass) {
+    const char *inherited = tree->inherited() ? tree->inherited()->name()->text() : nullptr;
 
-			printer.function_("public uint MsgId() "); {
-				printer.s("return Message.%s", tree->message->id()->name()->text());
-			}
-			printer.end();
-		}
-		printer.end();
+	if (useClass || tree->message || tree->size() > 2) {
+		useClass = true;
+		printer.class_(tree->name()->text(), inherited);
+	} 
+	else {
+		printer.struct_(tree->name()->text(), inherited);
 	}
-}
-
-void CsharpLang::print_message(CsharpPrinter &printer, std::shared_ptr<MessageTree> tree) {
-    print_struct(printer, tree->req());
-    if (tree->rsp()) {
-        print_struct(printer, tree->rsp());
-    }
-
-    printer.class_(tree->name()->text(), "Servlet"); {
-		printer.s("public %s req = new %s()", tree->req()->name()->text(), tree->req()->name()->text());
-		if (tree->rsp()) {
-			printer.s("public %s rsp = new %s()", tree->rsp()->name()->text(), tree->rsp()->name()->text());
-			printer.s("private Action<%s> cb", tree->name()->text());
-		}
-
-		printer.function_("public %s(bool needRpc = false)", tree->name()->text()); {
-			printer.s("this.needRpc = needRpc");
-		}
-		printer.end();
-
-		printer.function_("public override uint MsgId()"); {
-			printer.s("return Message.%s", tree->id()->name()->text());
-		}
-		printer.end();
-
-		printer.function_("public override ISerial Req()"); {
-			printer.s("return req");
-		}
-		printer.end();
-
-		printer.function_("public override void SerialRequest(ByteBuffer buf)"); {
-			printer.s("var ms = buf.Stream()");
-            printer.s("CodedOutputStream outStream = new CodedOutputStream(ms)");
-            printer.s("req.WriteTo(outStream)");
-            printer.s("outStream.Flush()");
-		}
-		printer.end();
-
-		printer.function_("public override void UnserialRequest(byte[] buf, int offset)"); {
-			printer.s("req = %s.Parser.ParseFrom(buf, offset, buf.Length - offset)", tree->req()->name()->text());
-		}
-		printer.end();
-
-		if (tree->rsp()){
-			printer.function_("public override ISerial Rsp()"); {
-				printer.s("return rsp");
-			}
-			printer.end();
-
-			printer.function_("public override void RC(byte rc)"); {
-				printer.s("rsp.rc = rc");
-			}
-			printer.end();
-		} else {
-			printer.function_("public override ISerial Rsp()"); {
-				printer.s("return null");
-			}
-			printer.end();
-		}
-
-		printer.function_("public override void SerialResponse(ByteBuffer buf)"); {
-			if (tree->rsp()) {
-				printer.s("var ms = buf.Stream()");
-				printer.s("CodedOutputStream outStream = new CodedOutputStream(ms)");
-				printer.s("rsp.WriteTo(outStream)");
-				printer.s("outStream.Flush()");
-			}
-		}
-		printer.end();
-
-		printer.function_("public override void UnserialResponse(byte[] buf, int offset)"); {
-			if (tree->rsp()) {
-				printer.s("rsp = %s.Parser.ParseFrom(buf, offset, buf.Length - offset)", tree->rsp()->name()->text());
-			}
-		}
-		printer.end();
-
-		printer.function_("public override int Execute(Conn conn)"); {
-			printer.s("return 0");
-		}
-		printer.end();
-
-		printer.function_("public override int OnBack()"); {
-			if (tree->rsp()) {
-				printer.if_("cb != null"); {
-					printer.s("cb(this)");
-				}
-				printer.end();
-			}
-			printer.s("return 0");
-		}
-		printer.end();
-
-		if (tree->rsp()) {
-			printer.function_("public Action<%s> Cb", tree->name()->text()); {
-				printer.function_("set"); {
-					printer.s("cb = value");
-				}
-				printer.end();
-			}
-			printer.end();
-		}
+	{
+		int i = 0;
+        for (auto sym : *tree) {
+			i++;
+            switch (sym->type()) {
+            case TREE_STRUCT_ITEM:
+                print_var(printer, std::dynamic_pointer_cast<StructItemTree>(sym), i);
+                break;
+            case TREE_CLASS_ITEM:
+                print_var(printer, std::dynamic_pointer_cast<StructItemTree>(sym), i);
+                break;
+            default:
+                assert(0);
+                break;
+            }
+        }
     }
     printer.end();
 }
 
-void CsharpLang::print_include(CsharpPrinter &printer, std::shared_ptr<IncludeTree> tree) {
-    //printer.p("#include \"%s.h\"", (tree->path()->directory() + tree->path()->basename()).c_str());
+void ProtobufLang::print_message(ProtobufPrinter &printer, std::shared_ptr<MessageTree> tree) {
+    print_struct(printer, tree->req());
+    if (tree->rsp()) {
+        print_struct(printer, tree->rsp());
+    }
 }
 
-void CsharpLang::print(SymbolTable &symbols, FILE *file) {
-    CsharpPrinter printer;
+void ProtobufLang::print_include(ProtobufPrinter &printer, std::shared_ptr<IncludeTree> tree) {
+    //printer.p("import \"%s\";", (tree->path()->directory() + tree->path()->basename()).c_str());
+}
+
+void ProtobufLang::print(SymbolTable &symbols, FILE *file) {
+    ProtobufPrinter printer;
     printer.open(file);
 
+	printer.p("syntax = \"proto3\";");
     printer.p(head().str().c_str());
-	printer.s("using Tnet");
-	printer.function_("namespace pbgen");
-
-	if (this->filename() == "Message" || this->filename() == "G_Defines") {
-		printer.function_("public class %s", this->filename().c_str());
-	}
+	printer.p("package pbgen;");
+	printer.println("");
 
     for (auto sym : symbols) {
         switch (sym->type()) {
@@ -714,9 +615,5 @@ void CsharpLang::print(SymbolTable &symbols, FILE *file) {
             break;
         }
     }
-	if (this->filename() == "Message" || this->filename() == "G_Defines") {
-		printer.end();
-	}
-	printer.end();
     printer.p(tail().str().c_str());
 } 

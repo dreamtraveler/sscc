@@ -57,7 +57,12 @@ const char *GoLang::type_decl(std::shared_ptr<StructItemTree> tree, bool union_i
 void GoLang::print_define(GoPrinter &printer, std::shared_ptr<DefineTree> tree) {
     switch (tree->value()->exprType()) {
     case EXPR_INT:
-        printer.const_(tree->name()->text(), "0x%llx", tree->value()->vint());
+		if (rshift) {
+			printer.const_(tree->name()->text(), "0x%llx", (unsigned short)(tree->value()->vint()));
+		}
+		else {
+			printer.const_(tree->name()->text(), "0x%llx", tree->value()->vint());
+		}
         break;
     case EXPR_STRING:
         printer.const_(tree->name()->text(), "\"%s\"", tree->value()->vstr());
@@ -550,11 +555,11 @@ void GoLang::print(SymbolTable &symbols, FILE *file) {
     GoPrinter printer;
     printer.open(file);
 
-    printer.p("package message");
-    printer.println("");
-    printer.p("import \"smith/rpc\"");
-
     printer.p(head().str().c_str());
+
+	if (this->filename() == "Message") {
+		rshift = true;
+	}
     for (auto sym : symbols) {
         switch (sym->type()) {
         case TREE_DEFINE:

@@ -7,6 +7,7 @@
 #include "go_lang.h"
 #include "csharp_lang.h"
 #include "js_lang.h"
+#include "protobuf_lang.h"
 
 void usage() {
      fprintf(stderr, "Usage: sscc -i input_file -o output_file -l language\n");
@@ -68,6 +69,7 @@ int main(int argc, char *argv[])
     Language::reg<GoLang>();
 	Language::reg<CsharpLang>();
 	Language::reg<JsLang>();
+	Language::reg<ProtobufLang>();
 
     input.load(std::make_shared<Path>(input_name), false);
 
