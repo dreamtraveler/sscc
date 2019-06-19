@@ -261,33 +261,16 @@ void JsLang::print_var_unserial(JsPrinter &printer, std::shared_ptr<StructItemTr
 }
 
 void JsLang::print_serial(JsPrinter &printer, std::shared_ptr<StructTree> tree) {
-    printer.function_("%s.prototype.serial = function(buf)", tree->name()->text()); {
-        for (auto sym : *tree) {
-            switch (sym->type()) {
-            case TREE_STRUCT_ITEM:
-                print_var_serial(printer, std::dynamic_pointer_cast<StructItemTree>(sym), nullptr, false);
-                break;
-            default:
-                assert(0);
-                break;
-            }
-        }
+    printer.function_("pb.%s.prototype.serial = function(buf)", tree->name()->text()); {
+		printer.s("var pbbuf = Buffer.from(this.serializeBinary())");
+		printer.s("buf.writeBytes(pbbuf)");
     }
     printer.end();
 };
 
 void JsLang::print_unserial(JsPrinter &printer, std::shared_ptr<StructTree> tree) {
-    printer.function_("%s.prototype.unserial = function(buf)", tree->name()->text()); {
-        for (auto sym : *tree) {
-            switch (sym->type()) {
-            case TREE_STRUCT_ITEM:
-                print_var_unserial(printer, std::dynamic_pointer_cast<StructItemTree>(sym), nullptr, false);
-                break;
-            default:
-                assert(0);
-                break;
-            }
-        }
+    printer.function_("pb.%s.prototype.unserial = function(buf)", tree->name()->text()); {
+		printer.s("return pb.%s.deserializeBinary(buf.bytes())", tree->name()->text());
     }
     printer.end();
 };
@@ -314,23 +297,23 @@ void JsLang::print_indent(JsPrinter &printer) {
 }
 
 void JsLang::print_struct(JsPrinter &printer, std::shared_ptr<StructTree> tree) {
-    printer.s("exports.%s=%s", tree->name()->text(), tree->name()->text());
+    printer.s("exports.%s=pb.%s", tree->name()->text(), tree->name()->text());
 	printer.println("");
 
-	print_constructor(printer, tree);
+	//print_constructor(printer, tree);
 
 	if (tree->message) {
-		printer.function_("%s.prototype.msgId = function()", tree->name()->text()); {
+		printer.function_("pb.%s.prototype.msgId = function()", tree->name()->text()); {
 			printer.s("return Message.%s", tree->message->id()->name()->text());
 		}
 		printer.end();
-	}
 
-	printer.println("");
-	print_serial(printer, tree);
-	printer.println("");
-	print_unserial(printer, tree);
-	printer.println("");
+		printer.println("");
+		print_serial(printer, tree);
+		printer.println("");
+		print_unserial(printer, tree);
+		printer.println("");
+	}
 }
 
 void JsLang::print_message(JsPrinter &printer, std::shared_ptr<MessageTree> tree) {
@@ -342,9 +325,9 @@ void JsLang::print_message(JsPrinter &printer, std::shared_ptr<MessageTree> tree
     }
 
 	printer.struct_(tree->name()->text(), nullptr); {
-		printer.s("this.req = new %s()", tree->req()->name()->text());
+		printer.s("this.req = new pb.%s()", tree->req()->name()->text());
 		if (tree->rsp()) {
-			printer.s("this.rsp = new %s()", tree->rsp()->name()->text());
+			printer.s("this.rsp = new pb.%s()", tree->rsp()->name()->text());
 		}
 	}
 	printer.end();
@@ -378,6 +361,8 @@ void JsLang::print(SymbolTable &symbols, FILE *file) {
 
 	printer.s("\"use strict\"");
     printer.p(head().str().c_str());
+
+	int cnt = 0;
     for (auto sym : symbols) {
         switch (sym->type()) {
         case TREE_DEFINE:
@@ -385,9 +370,17 @@ void JsLang::print(SymbolTable &symbols, FILE *file) {
             break;
         case TREE_STRUCT:
         case TREE_CLASS:
+			cnt++;
+			if (cnt == 1) {
+				printer.s("var pb = require(\'../../pbgen/%s_pb\')", this->filename().c_str());
+			}
             print_struct(printer, std::dynamic_pointer_cast<StructTree>(sym));
             break;
         case TREE_MESSAGE:
+			cnt++;
+			if (cnt == 1) {
+				printer.s("var pb = require(\'../../pbgen/%s_pb\')", this->filename().c_str());
+			}
             print_message(printer, std::dynamic_pointer_cast<MessageTree>(sym));
             break;
         case TREE_INCLUDE:
