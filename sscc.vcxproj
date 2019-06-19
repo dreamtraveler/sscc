@@ -164,6 +164,8 @@
     <ClInclude Include="src\message_tree.h" />
     <ClInclude Include="src\parser.h" />
     <ClInclude Include="src\printer.h" />
+    <ClInclude Include="src\protobuf_lang.h" />
+    <ClInclude Include="src\protobuf_printer.h" />
     <ClInclude Include="src\range_tree.h" />
     <ClInclude Include="src\struct_item_tree.h" />
     <ClInclude Include="src\struct_tree.h" />
@@ -206,6 +208,8 @@
     <ClCompile Include="src\message_tree.cpp" />
     <ClCompile Include="src\parser.cpp" />
     <ClCompile Include="src\printer.cpp" />
+    <ClCompile Include="src\protobuf_lang.cpp" />
+    <ClCompile Include="src\protobuf_printer.cpp" />
     <ClCompile Include="src\range_tree.cpp" />
     <ClCompile Include="src\sscc.cpp" />
     <ClCompile Include="src\struct_item_tree.cpp" />
