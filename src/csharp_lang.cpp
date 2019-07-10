@@ -619,8 +619,13 @@ void CsharpLang::print_message(CsharpPrinter &printer, std::shared_ptr<MessageTr
 			}
 			printer.end();
 
-			printer.function_("public override void RC(byte rc)"); {
+			printer.function_("public override void RC(uint rc)"); {
 				printer.s("rsp.rc = rc");
+			}
+			printer.end();
+
+			printer.function_("public override uint RC()"); {
+				printer.s("return rsp.rc");
 			}
 			printer.end();
 		} else {
